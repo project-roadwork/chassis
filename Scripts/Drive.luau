@@ -1,3 +1,5 @@
+--!native
+
 --[[	
 		             _____ _                   _     
 	     /\         / ____| |                 (_)    
@@ -1521,10 +1523,11 @@ local function RuntimeLoop(dt: number)
 
 	-- Inputs
 	Inputs(dt)
-
+	
 	-- Steering
-	Steering(dt)
-
+	if _Tune.PowerSteeringType == "New" then 
+		Steering(dt)
+	end
 	-- Gear
 	Gear()
 
@@ -1533,15 +1536,19 @@ local function RuntimeLoop(dt: number)
 end
 
 local fixedDeltaTime = 1/60 -- Fixed to avoid rewriting old code causing different behaviours at different FPS
-local accumulatedSimTime = 0
+local accumulatedPreSimTIme = 0
 
-RunService.PreSimulation:Connect(function(deltaTimeSim: number) 
-	accumulatedSimTime += deltaTimeSim
-	while accumulatedSimTime >= fixedDeltaTime do
-		accumulatedSimTime -= fixedDeltaTime
-		RuntimeLoop(fixedDeltaTime) 
-	end
-end)
+if _Tune.PowerSteeringType == "Old" then -- Assuming that the steering type does not change during runtime.
+	RunService.PreSimulation:Connect(function(deltaTimeSim: number) 
+		accumulatedPreSimTIme += deltaTimeSim
+		while accumulatedPreSimTIme >= fixedDeltaTime do
+			accumulatedPreSimTIme -= fixedDeltaTime
+			Steering(fixedDeltaTime)
+		end
+	end)
+end
+
+RunService:BindToSimulation(RuntimeLoop, Enum.StepFrequency.Hz60, 1000)
 
 local function SlowRuntimeLoop()
 	while true do
@@ -1568,4 +1575,4 @@ local function SlowRuntimeLoop()
 	end
 end
 
-task.spawn(SlowRuntimeLoop)
+task.defer(SlowRuntimeLoop)

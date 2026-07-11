@@ -9,6 +9,7 @@ GitHub (mirror): https://github.com/project-roadwork/chassis
 * Uses `RunService:BindToSimulation()` except on the `Steering` function when `Tune.PowerSteeringType` is set to `Old`.
    * Modifying BodyGyros is not supported in `BindToSimulation` for some awkward reason
 * Uses `--!native`
+* Uses `task.defer` instead of `task.spawn` when calling the `SlowRuntimeLoop`
 
 ## License
 Like A-Chassis, this fork is licensed under the Mozilla Public License 2.0.
